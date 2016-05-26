@@ -42,6 +42,6 @@ class YamoBot
 end
 
 new_bot = YamoBot.new
-
+new_bot.input_keys
 new_tweet = PostTweet.new
 new_tweet.post_tweet("next test")
