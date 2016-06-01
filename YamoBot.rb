@@ -39,9 +39,38 @@ class YamoBot
     end
   end
 
+  def auto name
+
+    def selection input, usr_settings
+
+      @output = "autobot.post_tweet('#{input}')"
+      @output = "autobot.like_tweet('#{input}')"
+      @output = "autobot.unlike_tweet('#{input}')"
+      @output = "autobot.getList('#{input1},#{input2},#{input3}')"
+      @output = "autobot.follow('#{input1},#{input2},#{input3}')"
+      @output = "autobot.unfollow('#{input1},'#{input2}')"
+      @output = "autobot.direct_message('#{input1},'#{input2},'#{input3}')"
+
+    end
+  end
+
 end
 
 new_bot = YamoBot.new
-new_bot.input_keys
+
 new_tweet = PostTweet.new
 new_tweet.post_tweet("next test")
+
+like_tweet = Like.new
+like_tweet.like_tweet('input')
+
+unlike_tweet = Unlike.new
+unlike_tweet.unlike_tweet('input')
+
+like_list = LikeList.new
+like_list.getList(num,'user_id',scrn_nme)
+follow_user = Follow.new
+follow_user.follow(user_id, screen_name, bool)
+
+dm_user = Message.new
+dm_user.direct_message(user_id, screen_name, text)
