@@ -32,11 +32,19 @@ class Blueprints
   end
 
   def getFollowerComparison_URL
-    #@url = "N/A"
+    @url = "/1.1/friendships/show.json"
   end
 
   def getMessage_URL
     @url = "/1.1/direct_messages/new.json"
+  end
+
+  def getLists_URL
+    @url = "/1.1/lists/ownerships.json"
+  end
+
+  def getListMembers_URL
+    @url = "/1.1/lists/members.json"
   end
 
 end

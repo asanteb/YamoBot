@@ -15,6 +15,18 @@ class Follow #Follows user
     authReq.connect_req address, request
   end
 
+  def check_if_following(target_screen_name, source_screen_name) #Checks relationship of followers
+    instructions = Blueprints.new
+    api_url = instructions.getAPI_URL
+    command_url = instructions.getFollowerComparison_URL
+
+    address = URI("#{api_url}#{command_url}")
+    address = URI("#{address}?source_screen_name=#{source_screen_name}&target_screen_name=#{target_screen_name}")
+
+    request = Net::HTTP::Get.new address.request_uri
+    authReq = TLS.new
+    authReq.connect_req address, request
+  end
 end
 
 class Unfollow #UnFollows user
@@ -33,3 +45,5 @@ class Unfollow #UnFollows user
     authReq.connect_req address, request
   end
 end
+
+
