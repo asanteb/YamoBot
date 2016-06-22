@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'oauth'
 
 file = File.read(File.expand_path('config/settings.json')) #Reads configuration file
 $settings = JSON.parse(file) #Collects configurations and creates a hash to global variable $settings
