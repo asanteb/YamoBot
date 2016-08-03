@@ -16,63 +16,49 @@ class Message
     authReq.connect_req address, request
   end
 
-  def init_auto_dm (users, greeting) #sets up automated messages
 
-    @users = users #collects user array from and instances it
+  def auto_dm (greeting, users, message)
 
-    json_obj = File.read('temp_dump/did_dm.json') #reads file create an instance hash
-    @did_dm = JSON.parse(json_obj)
-
-    if greeting
-      json_obj1 = File.read('temp_dump/greetings.json')
-      @greeting = JSON.parse(json_obj1)
-    end
-  end
-
-  def auto_dm (message, follows_hash)
+    obj_e = File.read('lib/limit_error.json') #'temp_dump/list_obj.json')
+    @rate_limit_error = JSON.parse(obj_e)
 
     new_message = Message.new
     i = 0
-    custom_message = message
+    @custom_message = message
 
-    @users.each do |key, user|
-      if follows_hash[user] == true && @did_dm[user] == false
-        if @greeting != nil
-          custom_message = @greeting[user] <<  message
-          puts "User:#{@greeting[user]} Key:#{@greeting[key]} #{key}"
-        end
-        new_message.direct_message nil, user, custom_message
-        @did_dm[user] = true
+
+    redis = Redis.new
+    users.each do |key, user|
+
+      did_dm = redis.hget user, 'did_dm'
+      follows = redis.hget user, 'follows'
+      firstname = redis.hget user, 'firstname'
+      if did_dm == 'false' and follows == 'true'
+          puts "DM'ing #{user}"
+
+          if greeting
+            @custom_message = "Hi #{firstname}%2C " <<  message
+          end
+          @error_check = new_message.direct_message nil, user, @custom_message
+          @error_check = JSON.parse(@error_check.body)
+          escape = 0
+
+          while escape == 0
+            if @error_check != @rate_limit_error
+              break
+            end
+            puts "API CALL LIMIT EXCEEDED"
+            puts "waiting 1 minute"
+            sleep(60)
+            @error_check = new_message.direct_message nil, user, @custom_message
+            @error_check = JSON.parse(@error_check.body)
+          end
+          $redis.hmset user, 'did_dm', true
       end
       i+=1
     end
-
-    File.open('temp_dump/did_dm.json','w') do |f|
-      f.write(@did_dm.to_json)
-    end
   end
 
 
-end
 
-class Greeting
-
-  def first_name_greeting (obj_location)
-    puts "Setting up greetings"
-    json_obj = File.read(obj_location) #'temp_dump/list_obj.json')
-    obj = JSON.parse(json_obj)
-    greeting = {}
-
-    i = 0; while i < obj['users'].count
-            name = obj['users'][i]['name'].split(' ').first #added first name
-            puts "Adding #{name} to greetings"
-            greeting[:"#{obj['users'][i]['screen_name']}"] = "Hi #{name}%2C"
-            i += 1
-           end
-     puts greeting
-
-    File.open('temp_dump/greetings.json', 'w') do |f|
-      f.write(greeting.to_json)
-    end
-  end
 end

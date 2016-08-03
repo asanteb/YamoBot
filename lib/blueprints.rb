@@ -47,8 +47,4 @@ class Blueprints
     @url = "/1.1/lists/members.json"
   end
 
-  def getUser
-    @url = "/1.1/users/show.json"
-  end
-
 end
