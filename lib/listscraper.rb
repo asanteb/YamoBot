@@ -1,6 +1,6 @@
 class ListScraper
 
-  $redis = Redis.new
+  $redis = Redis.new #Uses default redis connection settings. Change if different
 
   def configure_list (your_screen_name, slug, member_num, hours, run_auto_dm, message, greeting, auto_update)
 
@@ -157,7 +157,7 @@ class ListScraper
                escape = 0
 
                while escape == 0
-                 if @new_obj != @rate_limit_error
+                 if @error_check != @rate_limit_error
                    break
                  end
                  puts "API CALL LIMIT EXCEEDED"
