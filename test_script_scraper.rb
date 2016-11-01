@@ -4,6 +4,7 @@ require 'net/http'
 require 'net/https'
 require 'uri'
 require 'redis'
+require 'mongo'
 
 load 'config/config-oauth.rb'
 load 'lib/tls.rb'

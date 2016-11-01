@@ -27,12 +27,17 @@ class Message
     @custom_message = message
 
 
-    redis = Redis.new
+    $redis = Redis.new #CHANGE IF DIFFERENT HERE
+
+    client = Mongo::Client.new(['127.0.0.1:27017'], :database => 'yamobot') #CHANGE IF DIFFERENT HERE
+    db = client.database
+    @db_members = db.collection('list_members')
+
     users.each do |key, user|
 
-      did_dm = redis.hget user, 'did_dm'
-      follows = redis.hget user, 'follows'
-      firstname = redis.hget user, 'firstname'
+      did_dm = $redis.hget user, 'did_dm'
+      follows = $redis.hget user, 'follows'
+      firstname = $redis.hget user, 'firstname'
       if did_dm == 'false' and follows == 'true'
           puts "DM'ing #{user}"
 
@@ -54,6 +59,17 @@ class Message
             @error_check = JSON.parse(@error_check.body)
           end
           $redis.hmset user, 'did_dm', true
+
+
+          mongo_obj = {
+                       :username => user,
+                       :firstname => firstname,
+                       :lastname => $redis.hget(user, 'lastname'),
+                       :follows => follows,
+                       :did_dm => true,
+                       :tweeted => $redis.hget(user, 'tweeted')
+                      }
+          @db_members.update_one({:username => user}, mongo_obj)
       end
       i+=1
     end

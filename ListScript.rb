@@ -67,15 +67,14 @@ class ListScript
             @follows_hash[user] = true
             @total += 1
           end
-
         end
       #success report
         success = (@total.to_f / @super_count.to_f) * 100.0
         puts "Success Rate of Cycle #{i} of #{hours} is: #{success}%"
-      puts 'now sleeping...'
-      sleep(900) #For seconds 900 = 15 minutes
-      j +=  1
-    end
+        puts 'now sleeping...'
+        sleep(900) #For seconds 900 = 15 minutes
+        j +=  1
+      end
     puts 'sending out direct messages to...'
     @users.each do |user|
       if @follows_hash[user] == true && @did_dm[user] == false
@@ -109,4 +108,3 @@ message = gets.chomp
 
 new_script.setup_automation username, slug, num
 new_script.start_automation hours, message
-
