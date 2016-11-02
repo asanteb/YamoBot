@@ -49,6 +49,7 @@ class ListScraper
 
           #@greeting[:"#{username}"] = "Hi #{name}%2C "
 
+          #Mongo Object with defaults preset
           mongo_obj = {
                        :username => username,
                        :firstname => firstname,
@@ -57,12 +58,11 @@ class ListScraper
                        :did_dm => false,
                        :tweeted => 0
           }
-          #puts mongo_obj
-          puts '////////////////////CHECK_IF/////////////////////'
-          check_if = @db_members.find(:username => username).first
-          puts check_if
-          puts '////////////////////CHECK_IF/////////////////////'
 
+          #Checks if user exists in the database
+          check_if = @db_members.find(:username => username).first
+
+          #If object exists then create a redis object for it
           if check_if
             $redis.mapped_hmset username , {firstname: check_if[:firstname],
                                             lastname:  check_if[:lastname],
@@ -77,6 +77,8 @@ class ListScraper
            end
 
            $redis.mapped_hmset "last_num", {tweet_num: nil}
+
+           # 5 Default text tweets to use for automation
 
            @tweet_messages = ["We've built a platform to discover and fund cutting-edge medical research! Decide what's next: http://bit.ly/FutureOfHealth",
                               "20 years' worth of life-saving treatments sits untested! Help advance the next big research: http://bit.ly/FutureOfHealth",
@@ -156,9 +158,12 @@ class ListScraper
           end
 
         #Tweet at users even if they don't follow back
+        #Current setup works however it is implemented weirdly
+        #Just accept it regardless of how weird it looks
         if @new_obj['relationship']['target']['following'] == false
           spark = $redis.hmget user, 'tweeted'
-          spark_bool = Integer(spark[0])
+          spark_bool = Integer(spark[0])  #spark is interpreted as an array with string value. Convert that value to INT
+          #This statement is for testing the values and printing them. Pretty irrelevant TBH
           if spark_bool < 1 #Since it is being interpreted weirdly as an array
             puts "THIS IS SPARK"
             puts user
@@ -174,11 +179,9 @@ class ListScraper
             puts this_condition
             new_num = num.rand(0..4)
 
+            #This loop makes sure that you will get a different tweet message from the last one
             while new_num == this_condition
               new_num = num.rand(0..4)
-              puts "///////////////////////////"
-              puts "hello? #{new_num}"
-              puts "///////////////////////////"
             end
 
             #new_tweet = "0x40#{user}" << @tweet_messages[new_num]
@@ -186,9 +189,11 @@ class ListScraper
             new_tweet = at_user.concat(@tweet_messages[new_num])
             puts new_tweet
             tweet.post_tweet new_tweet
+
             puts "///////////////////////////"
             puts "JUST TWEETED"
             puts "///////////////////////////"
+
             $redis.hmset 'last_num', 'tweet_num', new_num
 
             mongo_obj = {
